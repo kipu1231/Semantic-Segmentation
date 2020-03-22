@@ -4,4 +4,4 @@ Implementation of two different models to achieve semantic segmentation on Image
 ## Models
 
 ## Results
-
+![alt text](https://github.com/kipu1231/Semantic-Segmentation/blob/master/Results/Comparison.png)
