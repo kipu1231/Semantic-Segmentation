@@ -5,6 +5,7 @@ from torch import nn
 
 import parser
 import models
+import models_best
 import data_c
 import test
 
@@ -28,7 +29,7 @@ if __name__=='__main__':
         os.makedirs(args.save_dir)
 
     #''' setup GPU '''
-    #torch.cuda.set_device(args.gpu)
+    torch.cuda.set_device(args.gpu)
     
     ''' setup random seed '''
     np.random.seed(args.random_seed)
@@ -48,11 +49,13 @@ if __name__=='__main__':
 
     ''' load model '''
     print('===> prepare model ...')
+    #training baseline model
     model = models.Net(args)
-    #checkpoint = torch.load('./log/model_best_adv.pth.tar')
-    #model.load_state_dict(checkpoint)
 
-    #model.cuda() # load model to gpu
+    # training advanced model
+    #model = models_best.Net(args)
+
+    model.cuda() # load model to gpu
 
     ''' define loss '''
     criterion = nn.CrossEntropyLoss()
@@ -77,13 +80,12 @@ if __name__=='__main__':
             iters += 1
 
             ''' move data to gpu '''
-            #imgs, cls = imgs.cuda(), cls.cuda()
+            imgs, cls = imgs.cuda(), cls.cuda()
 
             ''' forward path '''
             output = model(imgs)
 
             ''' compute loss, backpropagation, update parameters '''
-            print(type(cls))
             loss = criterion(output, cls) # compute loss
 
             optimizer.zero_grad()         # set grad of all parameters to zero
