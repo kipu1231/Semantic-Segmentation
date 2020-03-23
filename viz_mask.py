@@ -109,20 +109,10 @@ if __name__ == '__main__':
     img_path = args.img_path
     seg_path = args.seg_path
 
-
-    #hier muss ein Bild übergeben werden mit entsprechender Segmentation
-    img_path = 'hw2_data/val/img/0038.png'
-    #seg_path = 'hw2_data/val/seg/0084.png'
-    seg_path = 'hw2_seg_base/0038.png'
-
-    args.img_path = img_path
-    args.seg_path = seg_path
-
     img = scipy.misc.imread(img_path)
     seg = scipy.misc.imread(seg_path)
 
     cs = np.unique(seg)
-    print(cs)
 
     for c in cs:
         if not c == 0:
@@ -130,4 +120,4 @@ if __name__ == '__main__':
             ind = np.where(seg==c)
             mask[ind[0], ind[1]] = 1
             img = viz_data(img, mask, color=cmap[c])
-    scipy.misc.imsave('./exp.png', img)
+    scipy.misc.imsave('./masked_image.png', img)
