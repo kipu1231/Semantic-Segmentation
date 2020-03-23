@@ -52,6 +52,7 @@ if __name__ == '__main__':
                                               num_workers=args.workers,
                                               shuffle=False)
     ''' prepare mode '''
+    print('===> load model ...')
     if(args.resume == 'model_best.pth-12.tar?dl=1'):
         model = models.Net(args).cuda()
     else:
@@ -61,29 +62,32 @@ if __name__ == '__main__':
     checkpoint = torch.load(args.resume)
     model.load_state_dict(checkpoint)
 
+    model.eval()
+
     pred_list = []
 
     # acc = evaluate(model, test_loader)
     # print('Testing Accuracy: {}'.format(acc))
+    print('===> make predictions ...')
+    with torch.no_grad():
+        for idx, images in enumerate(test_loader):
+            images = images.cuda()
+            pred = model(images)
 
-    for idx, images in enumerate(test_loader):
-        images = images.cuda()
-        pred = model(images)
+            _, pred = torch.max(pred, dim=1)
 
-        _, pred = torch.max(pred, dim=1)
+            pred = pred.cpu().numpy().squeeze()
+            pred_list.append(pred)
 
-        pred = pred.cpu().numpy().squeeze()
-        pred_list.append(pred)
+        pred_list = np.concatenate(pred_list)
 
-    pred_list = np.concatenate(pred_list)
+        for idx, pred_img in enumerate(pred_list):
+            if idx < 10:
+                imgs_directory = os.path.join(args.save_dir, '000' + str(idx) + '.png')
+            elif idx < 100:
+                imgs_directory = os.path.join(args.save_dir, '00' + str(idx) + '.png')
+            else:
+                imgs_directory = os.path.join(args.save_dir, '0' + str(idx) + '.png')
 
-    for idx, pred_img in enumerate(pred_list):
-        if idx < 10:
-            imgs_directory = os.path.join(args.save_dir, '000' + str(idx) + '.png')
-        elif idx < 100:
-            imgs_directory = os.path.join(args.save_dir, '00' + str(idx) + '.png')
-        else:
-            imgs_directory = os.path.join(args.save_dir, '0' + str(idx) + '.png')
-
-        img = Image.fromarray(pred_img.astype('uint8'))
-        img.save(imgs_directory)
+            img = Image.fromarray(pred_img.astype('uint8'))
+            img.save(imgs_directory)
